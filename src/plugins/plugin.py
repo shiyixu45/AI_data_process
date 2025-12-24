@@ -3,7 +3,7 @@
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, Optional, Any
+from typing import Dict, Optional, Any, List, Tuple
 
 
 class Plugin(ABC):
@@ -19,15 +19,20 @@ class Plugin(ABC):
         self.stats = {}
 
     @abstractmethod
-    def single_line_process(self, line: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    def single_line_process(
+        self, line: Dict[str, Any], output_paths: List[str]
+    ) -> Tuple[Optional[Dict[str, Any]], Optional[int]]:
         """
         处理单行数据
 
         Args:
             line: 输入的一行数据，字典格式
+            output_paths: 输出路径列表（字符串列表），用于参考
 
         Returns:
-            处理后的数据字典，如果返回 None 则表示该行不输出
+            元组 (处理后的数据字典, 输出路径序号)
+            输出路径序号为int类型，对应output_paths列表的索引
+            若需舍去该行，返回 (None, None)
         """
         pass
 
@@ -43,3 +48,4 @@ class Plugin(ABC):
     def reset_stats(self):
         """重置统计信息"""
         self.stats = {}
+
