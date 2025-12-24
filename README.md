@@ -36,25 +36,39 @@
 └── README.md
 ```
 
-## 安装依赖
+## 安装
+
+### 开发模式安装（推荐）
 
 ```bash
-pip install pyarrow  # 仅在处理 Parquet 文件时需要
+# 克隆项目
+cd AI_data_process
+
+# 以可编辑模式安装
+pip install -e .
 ```
+
+安装后，`aidata` 包会被添加到 Python 环境中，可以在任何地方导入使用。
+
+### 依赖说明
+
+- `pyarrow>=22.0.0`：处理 Parquet 文件必需（已包含在安装中）
 
 ## 使用方法
 
 ### 1. 创建自定义插件
 
+在 `src/aidata/plugins/` 目录下创建你的插件文件，例如 `myplugin.py`：
+
 ```python
-from data_process.plugin import Plugin
+from aidata.plugins.plugin import Plugin
 from typing import Dict, Any, Optional, List, Tuple
 
 class Myplugin(Plugin):
     def __init__(self):
         super().__init__()
         self.stats['processed_count'] = 0
-    
+
     def single_line_process(
         self, line: Dict[str, Any], output_paths: List[str]
     ) -> Tuple[Optional[Dict[str, Any]], Optional[int]]:
@@ -65,30 +79,50 @@ class Myplugin(Plugin):
 
 ### 2. 运行数据处理
 
+有两种方式运行处理器：
+
+#### 方式一：作为模块运行（推荐）
+
 ```bash
-python -m src.data_process.processor \
+python -m aidata.data_process.processor \
     --input input.jsonl \
     --output-paths output1.jsonl output2.jsonl \
     --stats stats.json \
     --plugin myplugin \
-    --plugin-dir ./src/plugins \
     --type jsonl \
     --workers 4
 ```
 
+#### 方式二：直接运行（需要 `pip install -e .`）
+
+```bash
+python src/aidata/data_process/processor.py \
+    --input input.jsonl \
+    --output-paths output1.jsonl output2.jsonl \
+    --stats stats.json \
+    --plugin passthrough \
+    --type jsonl \
+    --workers 4
+```
+
+**注意**：
+- 方式一 (`python -m`) 会自动将当前目录添加到 Python 路径，适合开发调试
+- 方式二需要先执行 `pip install -e .` 安装包，之后可以在任何位置运行
+- `--plugin-dir` 参数是可选的，默认会从 `aidata.plugins` 包中加载插件
+
 ### 参数说明
 
-| 参数 | 必需 | 说明 |
-|------|------|------|
-| `--input` | 是 | 输入文件路径 |
-| `--output-paths` | 是 | 输出文件路径列表 |
-| `--stats` | 是 | 统计信息输出路径 |
-| `--plugin` | 是 | 插件名称 |
-| `--plugin-dir` | 否 | 插件目录路径 |
-| `--type` | 是 | 文件类型：jsonl/parquet |
-| `--workers` | 否 | 并行进程数（默认4） |
-| `--batch-size` | 否 | 批处理大小（默认1000） |
-| `--keep-order` | 否 | 保持输出顺序与输入一致 |
+| 参数             | 必需 | 说明                    |
+| ---------------- | ---- | ----------------------- |
+| `--input`        | 是   | 输入文件路径            |
+| `--output-paths` | 是   | 输出文件路径列表        |
+| `--stats`        | 是   | 统计信息输出路径        |
+| `--plugin`       | 是   | 插件名称                |
+| `--plugin-dir`   | 否   | 插件目录路径            |
+| `--type`         | 是   | 文件类型：jsonl/parquet |
+| `--workers`      | 否   | 并行进程数（默认4）     |
+| `--batch-size`   | 否   | 批处理大小（默认1000）  |
+| `--keep-order`   | 否   | 保持输出顺序与输入一致  |
 
 ## 运行测试
 
