@@ -11,8 +11,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from plugins.plugin import Plugin
-from data_process.processor import DataProcessor
+from aidata.plugins.plugin import Plugin
+from aidata.data_process.processor import DataProcessor
 
 
 class TestPlugin(Plugin):

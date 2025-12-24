@@ -27,26 +27,50 @@ except ImportError:
 
 
 def load_plugin_class(plugin_name: str, plugin_dir: str = None):
-    """动态加载插件类"""
+    """动态加载插件类
+
+    优先级：
+    1. 如果指定 plugin_dir，从该目录加载
+    2. 尝试从 aidata.plugins 包中导入
+    3. 尝试从当前工作目录加载
+    """
     if plugin_dir:
+        # 从指定目录加载
         plugin_file = os.path.join(plugin_dir, f"{plugin_name}.py")
+        if not os.path.exists(plugin_file):
+            raise FileNotFoundError(f"Plugin file not found: {plugin_file}")
+
+        spec = importlib.util.spec_from_file_location(plugin_name, plugin_file)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
     else:
-        plugin_file = f"{plugin_name}.py"
+        # 尝试从已安装的包中导入
+        try:
+            module_name = f"aidata.plugins.{plugin_name}"
+            module = __import__(module_name, fromlist=[plugin_name])
+        except ImportError:
+            # 如果包导入失败，尝试从当前目录加载
+            plugin_file = f"{plugin_name}.py"
+            if not os.path.exists(plugin_file):
+                raise FileNotFoundError(
+                    f"Plugin not found: {plugin_name}\n"
+                    f"Tried: aidata.plugins.{plugin_name} (package) and {plugin_file} (file)"
+                )
 
-    if not os.path.exists(plugin_file):
-        raise FileNotFoundError(f"Plugin file not found: {plugin_file}")
+            spec = importlib.util.spec_from_file_location(plugin_name, plugin_file)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
 
-    spec = importlib.util.spec_from_file_location(plugin_name, plugin_file)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-
+    # 查找插件类
     class_name = plugin_name.capitalize()
     if hasattr(module, class_name):
         return getattr(module, class_name)
     elif hasattr(module, plugin_name):
         return getattr(module, plugin_name)
     else:
-        raise AttributeError(f"Cannot find plugin class in {plugin_file}")
+        raise AttributeError(
+            f"Cannot find plugin class '{class_name}' or '{plugin_name}' in module"
+        )
 
 
 def process_batch_worker(args):

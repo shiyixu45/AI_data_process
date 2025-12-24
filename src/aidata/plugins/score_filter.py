@@ -4,12 +4,7 @@
 """
 
 from typing import Dict, Any, Optional, List, Tuple
-import sys
-import os
-
-# Add parent directory to path for imports
-# sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from plugins.plugin import Plugin
+from aidata.plugins.plugin import Plugin
 
 
 class Score_filter(Plugin):

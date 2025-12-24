@@ -4,13 +4,9 @@
 """
 
 from typing import Dict, Any, Optional, List, Tuple
-import sys
-import os
 import hashlib
 import time
-
-# sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from plugins.plugin import Plugin
+from aidata.plugins.plugin import Plugin
 
 
 class Data_enricher(Plugin):

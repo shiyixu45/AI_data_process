@@ -4,11 +4,7 @@
 """
 
 from typing import Dict, Any, Optional, List, Tuple
-import sys
-import os
-
-# sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from plugins.plugin import Plugin
+from aidata.plugins.plugin import Plugin
 
 
 class Text_length_filter(Plugin):

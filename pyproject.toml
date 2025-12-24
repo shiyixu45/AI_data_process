@@ -1,9 +1,20 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "ai-data-process"
 version = "0.1.0"
-description = "Add your description here"
+description = "High-performance AI data processing framework with plugin support"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "pyarrow>=22.0.0",
 ]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["aidata*"]
+
+[tool.setuptools.package-data]
+aidata = ["py.typed"]
